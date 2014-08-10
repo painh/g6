@@ -25,6 +25,8 @@ var g_cragonLevel = 1;
 var g_mon_level = 1; 
 var g_mon_level_time;
 
+var g_score_list = [];
+
 var SceneIngame = function()
 { 
 	this.jumpGauge = 100;
@@ -156,6 +158,9 @@ var SceneIngame = function()
 	
 	this.Update = function()
 	{ 
+//		if(KeyManager.IsKeyDown(KeyManager.a))
+//			g_player.hp = -1;
+
 		if(this.state !='gameOver') {
 			if(MouseManager.Clicked || KeyManager.IsKeyPress(KeyManager.arrowUp)) {
 				if(this.jumpGauge >= gauge_dec && (KeyManager.IsKeyPress(KeyManager.arrowUp) || MouseManager.y < g_player.y - g_cameraY)) {
@@ -210,10 +215,10 @@ var SceneIngame = function()
 			g_player.ax = 0;
 		
 			if(KeyManager.IsKeyDown(KeyManager.arrowLeft))
-					g_player.ax = -2;
+				g_player.ax = -2;
 
 			if(KeyManager.IsKeyDown(KeyManager.arrowRight))
-					g_player.ax = 2;
+				g_player.ax = 2;
 
 			if(MouseManager.LDown) { 
 				if(MouseManager.x < g_player.x + TILE_WIDTH / 2)
@@ -229,11 +234,29 @@ var SceneIngame = function()
 		g_gameUI.Update(); 
 		g_objList.Update(); 
 
-		if(g_player.hp <= 0)
+		if(g_player.hp <= 0 && this.state != 'gameOver') {
+			var user = prompt("이름을 입력 해 주세요", "");
 			this.state = "gameOver";
+
+			var scene = this;
+			if(user != null) {
+				ajaxReq("r.php", { gold : g_coin, player : user }, function() {
+					scene.getScores();
+				});
+			}
+			else
+				scene.getScores();
+		}
 
 		g_player.x = Math.max(0, g_player.x);
 		g_player.x = Math.min(g_player.x, Renderer.width - TILE_WIDTH);
+	}
+
+	this.getScores = function() {
+		ajaxReq("get_scores.php", function(list) {
+			g_score_list = list; 
+			console.log(list);
+		}); 
 	}
 
 	this.Render = function()
@@ -250,25 +273,8 @@ var SceneIngame = function()
 
 		Renderer.SetAlpha(1.0); 
 		Renderer.SetFont('8pt Arial'); 
-		Renderer.SetColor("#fff");
-		Renderer.Text(0, 0, "coin : " + g_coin);
 //		Renderer.Text(0, 0, "hp : " + g_player.hp + " jump " + this.jumpGauge + " / " + this.jumpGaugeMax);
 
-		var cragon_left = (g_cragonTime) - g_now.getTime();
-		cragon_left = parseInt(cragon_left / 1000);
-		Renderer.Text(0, 20, "cragon :  lv."+g_cragonLevel+" "+ cragon_left + " sec left");
-
-		if(this.jumpGauge < gauge_dec)
-			Renderer.SetColor("#f00");
-		else
-			Renderer.SetColor("#00f");
-		var max = 400;
-		var height = this.jumpGauge / this.jumpGaugeMax * max;
-		Renderer.Rect(10, 50 + max - height, 20, height);
-
-		for(var i = 0; i < g_player.hp; ++i)
-			Renderer.Img(20 + i * (g_imgs['hp'].width + 10), 
-					Renderer.height - g_imgs['hp'].height, g_imgs['hp'].img);
 
 		if(this.state == "gameOver") {
 			Renderer.SetAlpha(0.5); 
@@ -276,7 +282,37 @@ var SceneIngame = function()
 			Renderer.Rect(0,0,Renderer.width, Renderer.height);
 			Renderer.SetFont('15pt Arial'); 
 			Renderer.SetColor("#fff");
-			Renderer.Text(0,300,"game over!");
+			Renderer.Text(130,20,"게임 오버!");
+			Renderer.Text(40,50,"플레이 해주셔서 감사합니다!");
+			Renderer.Text(20,100  , "순위");
+			Renderer.Text(80,100  , "골드");
+			Renderer.Text(140,100 , "이름");
+			for(var i in g_score_list) {
+				var item = g_score_list[i];
+				var curLine = 100 + (parseInt(i)+1) * 30;
+				Renderer.Text(20, curLine, parseInt(i)+1);
+				Renderer.Text(80, curLine, item.gold);
+				Renderer.Text(140, curLine, item.player);
+			}
+		} else {
+			Renderer.SetColor("#fff");
+			Renderer.Text(0, 0, "coin : " + g_coin);
+
+			var cragon_left = (g_cragonTime) - g_now.getTime();
+			cragon_left = parseInt(cragon_left / 1000);
+			Renderer.Text(0, 20, "cragon :  lv."+g_cragonLevel+" "+ cragon_left + " sec left");
+
+			if(this.jumpGauge < gauge_dec)
+				Renderer.SetColor("#f00");
+			else
+				Renderer.SetColor("#00f");
+			var max = 400;
+			var height = this.jumpGauge / this.jumpGaugeMax * max;
+			Renderer.Rect(10, 50 + max - height, 20, height);
+
+			for(var i = 0; i < g_player.hp; ++i)
+				Renderer.Img(20 + i * (g_imgs['hp'].width + 10), 
+						Renderer.height - g_imgs['hp'].height, g_imgs['hp'].img);
 		}
 
 //		g_objList.Render();
