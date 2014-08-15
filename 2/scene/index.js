@@ -285,46 +285,14 @@ var SceneIngame = function() {
 			return;
 
 		if((KeyManager.IsKeyPress(KeyManager.arrowDown) || 
-			(MouseManager.Clicked && MouseManager.x > 200 && MouseManager.x < Renderer.width && MouseManager.y > Renderer.height - 30 && MouseManager.y < Renderer.height))
+			(MouseManager.Clicked && MouseManager.y > Renderer.height - 30))
 			&& g_turrentCnt > 0) {
 				AddTurret(g_player.x, g_player.y + TILE_HEIGHT * 2);
 				g_turrentCnt--;
 		}
 
-		if((MouseManager.Clicked && !(MouseManager.x > 200 && MouseManager.x < Renderer.width && MouseManager.y > Renderer.height - 30 && MouseManager.y < Renderer.height)) || KeyManager.IsKeyPress(KeyManager.arrowUp)) { 
-			var colList = g_objList.CheckCollision(g_player.x, g_player.y, g_player);
-			//var colList = g_objList.CheckCollision(MouseManager.x + g_cameraX, MouseManager.y + g_cameraY, g_player);
-			var removeList = [];
-			for(var i in colList) 
-				if(colList[i].type == "turret")
-					removeList.push(colList[i]);
-
-			for(var i in removeList)
-				removeFromList(colList, removeList[i]);
-
-			if(colList.length > 0) {
-				for(var i in colList) {
-					var obj = colList[i];
-					if(Math.abs(obj.y - g_player.y) > obj.width * 1.1 ||
-						Math.abs(obj.x - g_player.x) >  obj.height * 1.1 )
-						continue;
-
-					if(obj.type.indexOf("mon_") != 0 && obj.type != 'cragon')
-						continue;
-
-					var effect = g_effectManager.Add(obj.x + obj.col_width / 2 - TILE_WIDTH / 2 + randomRange(-15 , 15) ,
-													obj.y + obj.col_height / 2 - TILE_HEIGHT / 2 + randomRange(-15 , 15) , '#fff', '',
-										g_imgs['sword_effect']);
-
-					effect.world = true;
-					obj.Damaged(1); 
-					g_jumpGauge += 5; 
-					g_player.ay = 0;
-					g_player.ay = Math.min(-10, g_player.ay);
-					break;
-				}
-			} 
-			else if(g_jumpGauge >= gauge_dec && (KeyManager.IsKeyPress(KeyManager.arrowUp) || MouseManager.y < g_player.y - g_cameraY)) {
+		if((MouseManager.Clicked && !(MouseManager.y > Renderer.height - 30)) || KeyManager.IsKeyPress(KeyManager.arrowUp)) { 
+			if(g_jumpGauge >= gauge_dec && (KeyManager.IsKeyPress(KeyManager.arrowUp) || MouseManager.y < g_player.y - g_cameraY)) {
 				g_player.ay = -10;
 				g_jumpGauge -= gauge_dec;
 			}
@@ -495,6 +463,7 @@ var SceneIngame = function() {
 			var img = g_imgs['turret'];
 			Renderer.ImgBlt(200, Renderer.height - 30, img.img, 0, 0, img.width, img.height, 30, 30);
 			Renderer.Text(230, Renderer.height - 30, "x " + g_turrentCnt);
+			Renderer.Text(0, Renderer.height - 30, "터렛 설치");
 		}
 
 		if(g_merchantMode) {
