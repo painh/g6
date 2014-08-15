@@ -64,6 +64,9 @@ var Obj = function() {
 	this.max_ay = 10;
 	this.max_ax = 0;
 
+	this.weakPoint = 0;
+	this.weakPointChangeLastTime = 0;
+
 	this.width = TILE_WIDTH;
 	this.height = TILE_HEIGHT;
 
@@ -143,11 +146,20 @@ var Obj = function() {
 		if(this.firstFrame) {
 			this.firstFrame = false;
 			this.SetState('normal');
-			this.attackLastTime = g_now;
+			this.attackLastTime = g_now; 
+
+			this.weakPoint = randomRange(0, 2);
+			this.weakPointChangeLastTime = g_now;
+
 			if(this.type == "meteo") {
 				g_effectManager.Add( this.x + this.width / 2, Renderer.height / 2 , '#000', '', g_imgs['warn'], this.width / 2, this.height / 2);
 				g_effectManager.Add( this.x + this.width / 2 - g_imgs['redline'].width / 2, 0, '#000', '', g_imgs['redline']);
 			}
+		}
+		
+		if(g_now - this.weakPointChangeLastTime > 1000) {
+			this.weakPoint = randomRange(0, 2);
+			this.weakPointChangeLastTime = g_now;
 		}
 
 		if(this.isDead)
@@ -258,15 +270,31 @@ var Obj = function() {
 
 						if(obj.type.indexOf("mon_") == 0 || obj.type == 'cragon') {
 							this.attackLastTime = g_now;
-							var effect = g_effectManager.Add(obj.x + obj.col_width / 2 - TILE_WIDTH / 2 + randomRange(-15 , 15) ,
-															obj.y + obj.col_height / 2 - TILE_HEIGHT / 2 + randomRange(-15 , 15) , '#fff', '',
-												g_imgs['sword_effect']);
+							var damage = 0;
 
-							effect.world = true;
-							obj.Damaged(1); 
-							g_jumpGauge += 5; 
-							this.ay = 0;
-							this.ay = Math.min(-10, this.ay);
+
+							if(obj.type == 'cragon') {
+								var width = obj.width / 3;
+								var weakX = obj.weakPoint * width;
+								var thisMid = this.x + TILE_WIDTH /2;
+								if( thisMid > weakX && thisMid < weakX + width) 
+									damage = 1;
+								else
+									damage = 0.01;
+							}
+							else
+								damage = 1;
+
+							if(damage > 0) {
+								var effect = g_effectManager.Add(obj.x + obj.col_width / 2 - TILE_WIDTH / 2 + randomRange(-15 , 15) ,
+																obj.y + obj.col_height / 2 - TILE_HEIGHT / 2 + randomRange(-15 , 15) , '#fff', '',
+													g_imgs['sword_effect']);
+								effect.world = true;
+								obj.Damaged(damage); 
+								g_jumpGauge += 5; 
+								this.ay = 0;
+								this.ay = Math.min(-10, this.ay);
+							}
 						} 
 					}
 
@@ -414,7 +442,17 @@ var Obj = function() {
 		}
 
 		Renderer.SetColor('#0f0');
-		Renderer.Text(x + this.width / 2, y + this.height - 20, this.hp); 
+		if(parseInt(this.hp) != this.hp)
+			Renderer.Text(x + this.width / 2, y + this.height - 20, this.hp.toFixed(2)); 
+		else
+			Renderer.Text(x + this.width / 2, y + this.height - 20, this.hp); 
+
+		if(this.type == "cragon") {
+			Renderer.SetAlpha(0.2);
+			Renderer.SetColor('#f00');
+			var width = this.width / 3;
+			Renderer.Rect(this.weakPoint * width, this.renderY, width, this.height); 
+		}
 	}
 
 };

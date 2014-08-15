@@ -45,6 +45,7 @@ var g_stageTimeMax = 60;
 var g_stageHeight = 3;
 
 var g_score = 0;
+var g_stage = 0;
 
 var SceneIngame = function() { 
 
@@ -107,7 +108,8 @@ var SceneIngame = function() {
 
 		AddTurret(g_player.x, g_player.y - 200);
 
-		this.GenerateMerchant();
+		this.GenerateMerchant(); 
+		this.GenerateCragon();
 
 		g_gameUI.Add(20, 400,  100, 30, '나가기', this, 'exit');
 		g_gameUI.Add(20, 100,  200, 30, '터렛 구입('+g_turrentPrice+'원)', this, 'buyTurret');
@@ -232,7 +234,8 @@ var SceneIngame = function() {
 
 				var x = i * TILE_WIDTH;
 				var y = min_y - j * TILE_HEIGHT;
-				var obj = g_objList.Add(x, y, "mon_" + randomRange(1, 5) );
+				var mon = Math.min(5, parseInt(g_stage / 2) + 1);
+				var obj = g_objList.Add(x, y, "mon_" + mon);
 
 				obj.ay = 0.3;
 				obj.max_ay = 10;
@@ -304,7 +307,7 @@ var SceneIngame = function() {
 		if(g_now.getTime() > g_cragonTime)
 			this.GenerateCragon();
 
-		if(g_now - g_merchantTime > 60 * 1000)
+		if(g_now - g_merchantTime > 30 * 1000)
 			this.GenerateMerchant();
 
 		if(g_now - g_meteoTime > 5 * 1000)
@@ -361,6 +364,7 @@ var SceneIngame = function() {
 			g_stageHeight = g_stageHeight * 2;
 			g_heightWorldPrev = g_heightWorld;
 			g_stageTime = g_now;
+			g_stage++;
 			for(var i in g_objList.m_list) {
 				var obj = g_objList.m_list[i];
 				if(obj.y > g_player.y) {
