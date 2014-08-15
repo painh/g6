@@ -108,7 +108,7 @@ var SceneIngame = function() {
 
 		AddTurret(g_player.x, g_player.y - 200);
 
-		this.GenerateMerchant(); 
+//		this.GenerateMerchant(); 
 		this.GenerateCragon();
 
 		g_gameUI.Add(20, 400,  100, 30, '나가기', this, 'exit');
@@ -220,8 +220,7 @@ var SceneIngame = function() {
 					else
 						p[i][j] = 0;
 			}	
-		}
-
+		} 
 		else
 			p = g_patterns[randomRange(0, g_patterns.length - 1)];
 
@@ -229,8 +228,7 @@ var SceneIngame = function() {
 			for(var j = 0; j < 5; ++j) {
 				var val = p[j][i];
 				if(val == 0)
-					continue;
-				
+					continue; 
 
 				var x = i * TILE_WIDTH;
 				var y = min_y - j * TILE_HEIGHT;
@@ -239,8 +237,7 @@ var SceneIngame = function() {
 
 				obj.ay = 0.3;
 				obj.max_ay = 10;
-				obj.hp = 1;
-
+				obj.hp = 1; 
 			} 
 		}
 
@@ -330,7 +327,6 @@ var SceneIngame = function() {
 
 		g_objList.Update(); 
 
-
 		g_player.x = Math.max(0, g_player.x);
 		g_player.x = Math.min(g_player.x, Renderer.width - TILE_WIDTH);
 		g_cameraY = g_player.y - 320;
@@ -343,8 +339,8 @@ var SceneIngame = function() {
 		if(KeyManager.IsKeyDown(KeyManager.a))
 			g_player.hp = -1;
 
-		g_stageTimeLeft = g_stageTimeMax - (g_now - g_stageTime) / 1000;
-		if(this.state != 'gameOver' && g_stageTimeLeft < 0) {
+//		g_stageTimeLeft = g_stageTimeMax - (g_now - g_stageTime) / 1000;
+		if(this.state != 'gameOver' && g_player.hp <= 0) {
 			this.state = "gameOver";
 			var user = prompt("이름을 입력 해 주세요", "AAA");
 
@@ -365,6 +361,7 @@ var SceneIngame = function() {
 			g_heightWorldPrev = g_heightWorld;
 			g_stageTime = g_now;
 			g_stage++;
+			g_player.hp = 3;
 			for(var i in g_objList.m_list) {
 				var obj = g_objList.m_list[i];
 				if(obj.y > g_player.y) {
@@ -431,7 +428,7 @@ var SceneIngame = function() {
 				Renderer.Text(20, curLine, parseInt(i)+1);
 				Renderer.Text(80, curLine, item.score);
 				Renderer.Text(140, curLine, item.height);
-				Renderer.Text(240, curLine, item.player);
+				Renderer.Text(200, curLine, item.player);
 			}
 		} else {
 
@@ -447,7 +444,7 @@ var SceneIngame = function() {
 //			Renderer.Text(0, 20, "cragon :  lv."+g_cragonLevel+" "+ cragon_left + " sec left");
 			Renderer.SetFont('16pt Arial'); 
 			Renderer.SetColor("#f00");
-			Renderer.Text(0, 20, parseInt(g_stageTimeLeft) + " 초 남음");
+//			Renderer.Text(0, 20, parseInt(g_stageTimeLeft) + " 초 남음");
 			Renderer.SetFont('8pt Arial'); 
 
 			if(g_jumpGauge < gauge_dec)
@@ -458,9 +455,9 @@ var SceneIngame = function() {
 			var height = g_jumpGauge / g_jumpGaugeMax * max;
 			Renderer.Rect(10, 50 + max - height, 20, height);
 
-//			for(var i = 0; i < g_player.hp; ++i)
-//				Renderer.Img(20 + i * (g_imgs['hp'].width + 10), 
-//						Renderer.height - g_imgs['hp'].height, g_imgs['hp'].img);
+			for(var i = 0; i < g_player.hp; ++i)
+				Renderer.Img(20 + i * (g_imgs['hp'].width + 10), 
+						Renderer.height - g_imgs['hp'].height, g_imgs['hp'].img);
 
 			Renderer.SetColor("#fff");
 			Renderer.SetFont('15pt Arial'); 

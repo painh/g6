@@ -105,8 +105,8 @@ var Obj = function() {
 	}
 
 	this.Damaged = function(dmg) {
-		if(this.type == "player")
-			return;
+	//	if(this.type == "player")
+	//		return;
 
 		if(this.isDead)
 			return;
@@ -233,7 +233,7 @@ var Obj = function() {
 			var list = g_objList.CheckCollision(this.x, this.y, this);
 			if(list.length > 0) {
 				for(var i = 0; i < list.length; ++i) {
-					var obj = list[0];
+					var obj = list[i];
 
 					if(obj.type == 'turret' ) {
 						obj.Damaged(999);
@@ -246,12 +246,11 @@ var Obj = function() {
 			var list = g_objList.CheckCollision(this.x, this.y, this);
 			if(list.length > 0) {
 				for(var i = 0; i < list.length; ++i) {
-					var obj = list[0];
+					var obj = list[i];
 
 					if(obj.type == 'turret' ) {
 						this.Damaged(999);
 						obj.Damaged(1);
-						break;
 					}
 				} 
 			}
@@ -314,7 +313,7 @@ var Obj = function() {
 					} else if(obj.type == 'meteo') {
 						obj.isDead = true;
 						this.DustEffect();
-//						this.Damaged(1);
+						this.Damaged(1);
 						this.ay = 10;
 					} else if(obj.type == "merchant") {
 						g_merchantMode = true;
@@ -360,7 +359,7 @@ var Obj = function() {
 				this.ay = 0;
 				this.y = PLAYER_MAX_Y;
 				this.isDead = true;
-				g_player.Damaged(1);
+//				g_player.Damaged(1);
 				this.DustEffect();
 			}
 
