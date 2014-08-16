@@ -169,20 +169,15 @@ var SceneIngame = function() {
 		var num = randomRange(1, 3);
 		for(var i = 0; i < num; ++i) {
 			var x = randomRange(50, Renderer.width - 50);
-			var y = g_cameraY - 500;
+			var y = g_player.y - 1000;
 			var obj = g_objList.Add(x, y, "meteo");
 
-			obj.ay = 10;
-			obj.hp = randomRange(1, 2); 
+			obj.hp = 1;
 			var sec = randomRange(10, 30) / 10 * config['fps'];
-			obj.visibleDelay = totalFPS + sec;
-
 			obj.visibleDelay = totalFPS + sec; 
 			obj.visible = false;
-//			obj.col_x = 20;
-//			obj.col_width = 20;
 			obj.max_ay = 100;
-			obj.ay = 10;
+			obj.ay = 5;
 		} 
 
 	}
@@ -416,7 +411,7 @@ var SceneIngame = function() {
 			Renderer.Rect(0,0,Renderer.width, Renderer.height);
 			Renderer.SetFont('15pt Arial'); 
 			Renderer.SetColor("#fff");
-			Renderer.Text(130,20,"타임 오버!");
+			Renderer.Text(130,20,"게임 오버!");
 			Renderer.Text(40,50,"플레이 해주셔서 감사합니다!");
 			Renderer.Text(20,100  , "순위");
 			Renderer.Text(80,100  , "점수");

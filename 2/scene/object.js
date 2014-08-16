@@ -137,9 +137,8 @@ var Obj = function() {
 
 	this.Update = function()
 	{ 
-		if(this.visibleDelay < totalFPS) {
+		if(this.visibleDelay < totalFPS) 
 			this.visible = true;
-		}
 		else
 			return;
 
@@ -152,6 +151,7 @@ var Obj = function() {
 			this.weakPointChangeLastTime = g_now;
 
 			if(this.type == "meteo") {
+				this.y = g_player.y - Renderer.height * 2;
 				g_effectManager.Add( this.x + this.width / 2, Renderer.height / 2 , '#000', '', g_imgs['warn'], this.width / 2, this.height / 2);
 				g_effectManager.Add( this.x + this.width / 2 - g_imgs['redline'].width / 2, 0, '#000', '', g_imgs['redline']);
 			}
@@ -173,7 +173,6 @@ var Obj = function() {
 			return;
 		}
 
-		
 		if(this.type == 'meteo' && this.state == 'normal' && this.stateChangeDate - g_now > 1000) {
 			this.y = g_player.y - 500;
 			this.SetState('down');
@@ -204,11 +203,16 @@ var Obj = function() {
 
 		if(this.state == 'normal' || this.state == 'down') {
 			this.x += this.ax;
-			this.y += this.ay;
-
-			this.x = Math.max(0, this.x);
-			this.x = Math.min(Renderer.width - this.width, this.x);
+			this.y += this.ay; 
 		}
+
+		if(this.state == 'damaged') {
+			this.x += this.ax /2 ;
+			this.y += this.ay /2 ; 
+		}
+
+		this.x = Math.max(0, this.x);
+		this.x = Math.min(Renderer.width - this.width, this.x);
 
 		if(this.type == "turret" && this.state == "normal") {
 			if(g_now - this.stateChangeDate > 3000) {
@@ -267,7 +271,10 @@ var Obj = function() {
 						Math.abs(obj.x - this.x) <=  obj.height * 1.1 && 
 						g_now - this.attackLastTime > 100) {
 
-						if(obj.type.indexOf("mon_") == 0 || obj.type == 'cragon') {
+						if(obj.type.indexOf("mon_") == 0 && this.ay > 0)
+								continue;
+
+						if(obj.type.indexOf("mon_") == 0 || obj.type == 'cragon') { 
 							this.attackLastTime = g_now;
 							var damage = 0;
 
@@ -279,21 +286,29 @@ var Obj = function() {
 								if( thisMid > weakX && thisMid < weakX + width) 
 									damage = 1;
 								else
-									damage = 0.01;
+									damage = 0;
 							}
 							else
 								damage = 1;
 
 							if(damage > 0) {
-								var effect = g_effectManager.Add(obj.x + obj.col_width / 2 - TILE_WIDTH / 2 + randomRange(-15 , 15) ,
+								var effectX = obj.x + obj.col_width / 2;
+
+								if(obj.type == "cragon") {
+									var weakWidth = obj.width / 3;
+									effectX = obj.x + obj.weakPoint * weakWidth + weakWidth / 2;
+								}
+
+								var effect = g_effectManager.Add( effectX - TILE_WIDTH / 2 + randomRange(-15 , 15) ,
 																obj.y + obj.col_height / 2 - TILE_HEIGHT / 2 + randomRange(-15 , 15) , '#fff', '',
 													g_imgs['sword_effect']);
 								effect.world = true;
-								obj.Damaged(damage); 
-								g_jumpGauge += 5; 
-								this.ay = 0;
-								this.ay = Math.min(-10, this.ay);
 							}
+
+							obj.Damaged(damage); 
+							g_jumpGauge += 5; 
+							this.ay = 0;
+							this.ay = Math.min(-10, this.ay);
 						} 
 					}
 

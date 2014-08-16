@@ -13,7 +13,7 @@ $config["srcPath"] = "./";
 $config['showLogOnDebugger'] = true;
 $config['showLogOnConsole'] = true;
 $config['needInstall'] = false;
-$config['title'] = 'dragon fist';
+$config['title'] = 'dragon fist 2';
 
 $js_list = [
 	$config["srcPath"].'scene/effect.js',
