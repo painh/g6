@@ -158,8 +158,8 @@ var SceneIngame = function()
 	
 	this.Update = function()
 	{ 
-//		if(KeyManager.IsKeyDown(KeyManager.a))
-//			g_player.hp = -1;
+		if(KeyManager.IsKeyDown(KeyManager.a))
+			g_player.hp = -1;
 
 		if(this.state !='gameOver') {
 			if(MouseManager.Clicked || KeyManager.IsKeyPress(KeyManager.arrowUp)) {
@@ -235,7 +235,7 @@ var SceneIngame = function()
 		g_objList.Update(); 
 
 		if(g_player.hp <= 0 && this.state != 'gameOver') {
-			var user = prompt("이름을 입력 해 주세요", "");
+			var user = prompt("이름을 입력 해 주세요", "AAA");
 			this.state = "gameOver";
 
 			var scene = this;

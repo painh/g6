@@ -131,6 +131,13 @@ var Obj = function() {
 				g_score += 100;
 				for(var i = 0; i < 30; ++i)
 					AddGold(randomRange(0, this.width), randomRange(this.y, this.y + this.height));
+
+				var list = g_objList.GetObjByType('meteo');
+
+				for(var i in list) {
+					var obj = list[i];
+					obj.Damaged(999);
+				} 
 			}
 		}
 	}
@@ -312,39 +319,57 @@ var Obj = function() {
 						} 
 					}
 
-					if(obj.type == 'coin' ) {
-						var eatable = true;
-						if(obj.state == 'normal') 
-							if(g_now - obj.stateChangeDate < 1000)
-								eatable = false;
+					switch(obj.type) {
+						case 'coin':
+							var eatable = true;
+							if(obj.state == 'normal') 
+								if(g_now - obj.stateChangeDate < 1000)
+									eatable = false;
 
-						if(eatable) {
+							if(eatable) {
+								obj.isDead = true;
+								g_coin++;
+								var eff = g_effectManager.Add(this.x, this.y, '#ff0', '+ 1');
+								eff.world = true;
+								eff.font='20pt Arial';
+							}
+							break;
+
+						case "meteo":
 							obj.isDead = true;
-							g_coin++;
-							var eff = g_effectManager.Add(this.x, this.y, '#ff0', '+ 1');
+							this.DustEffect();
+							this.Damaged(1);
+							this.ay = 10;
+							break;
+
+						case "merchant":
+							g_merchantMode = true;
+							obj.Damaged(999);
+							break;
+
+						case "item_turret":
+							g_turrentCnt++;
+							obj.Damaged(999); 
+							var eff = g_effectManager.Add(this.x, this.y, '#ff0', '터렛 + 1');
 							eff.world = true;
 							eff.font='20pt Arial';
-						}
-					} else if(obj.type == 'meteo') {
-						obj.isDead = true;
-						this.DustEffect();
-						this.Damaged(1);
-						this.ay = 10;
-					} else if(obj.type == "merchant") {
-						g_merchantMode = true;
-						obj.Damaged(999);
-					} 
-					else {
-						if(this.ay < 0 && obj.type != "turret" && prevY > obj.y)
-							this.y = obj.y + obj.height;
+							break;
 
-						if(obj.type == "turret" && prevY + this.height <= obj.y) {
-							this.y = obj.y - obj.height;
-							onTurrent = true;
-						}
+						default:
+							if(this.ay < 0 && obj.type != "turret" && prevY > obj.y) {
+								if(obj.type.indexOf("mon_") == 0) {
+								}
+								else
+									this.y = obj.y + obj.height;
+							}
+
+							if(obj.type == "turret" && prevY + this.height <= obj.y) {
+								this.y = obj.y - obj.height;
+								onTurrent = true;
+							}
+							break;
 					}
-				}
-
+				} 
 			}
 
 			if(onTurrent || this.y >= PLAYER_MAX_Y)

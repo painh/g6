@@ -94,6 +94,7 @@ var SceneIngame = function() {
 		this.LoadImg('turret', 'turret.png', 60, 60);
 		this.LoadImg('turret_fire', 'turret_fire.png', 320, 6);
 
+		this.LoadImg('item_turret', 'item_turret.png', 60, 60);
 		g_player = g_objList.Add(Renderer.width / 2 - TILE_WIDTH / 2,
 								PLAYER_MAX_Y, "player");
 		g_player.default_ay = 0.3;
@@ -109,7 +110,7 @@ var SceneIngame = function() {
 		AddTurret(g_player.x, g_player.y - 200);
 
 //		this.GenerateMerchant(); 
-		this.GenerateCragon();
+//		this.GenerateCragon();
 
 		g_gameUI.Add(20, 400,  100, 30, '나가기', this, 'exit');
 		g_gameUI.Add(20, 100,  200, 30, '터렛 구입('+g_turrentPrice+'원)', this, 'buyTurret');
@@ -192,7 +193,7 @@ var SceneIngame = function() {
 		var	min_y = 9999999;
 
 		for(var i in g_objList.m_list) {
-			var obj = g_objList.m_list[i];
+			var obj = g_objList.m_list[i]; 
 			min_y = Math.min(obj.y, min_y);
 //			console.log(min_y, obj.y);
 		}
@@ -227,12 +228,19 @@ var SceneIngame = function() {
 
 				var x = i * TILE_WIDTH;
 				var y = min_y - j * TILE_HEIGHT;
-				var mon = Math.min(5, parseInt(g_stage / 2) + 1);
-				var obj = g_objList.Add(x, y, "mon_" + mon);
+				var obj;
+				if(randomRange(1, 300) == 1) {
+					obj = g_objList.Add(x, y, "item_turret");
+				}
+				else {
+					mon = Math.min(5, parseInt(g_stage / 2) + 1);
+					obj = g_objList.Add(x, y, "mon_" + mon);
+				}
 
 				obj.ay = 0.3;
 				obj.max_ay = 10;
 				obj.hp = 1; 
+
 			} 
 		}
 
